@@ -1,3 +1,4 @@
+// pos/app/data/models/product.dart
 // To parse this JSON data, do
 //
 //     final productModel = productModelFromJson(jsonString);
@@ -30,11 +31,11 @@ class Datum {
   int id;
   int kategoriId;
   int satuanId;
-  String namaProduk;
+  String namaProduk; // Pastikan ini nama properti yang benar
   String slug;
   String deskripsi;
   int hargaBeli;
-  int hargaJual;
+  int hargaJual; // Pastikan ini nama properti yang benar
   int promo;
   int percentage;
   int stok;
@@ -69,10 +70,12 @@ class Datum {
     id: json["id"],
     kategoriId: json["kategori_id"],
     satuanId: json["satuan_id"],
+    // Pastikan key ini sesuai dengan JSON dari API Anda
     namaProduk: json["nama_produk"],
     slug: json["slug"],
     deskripsi: json["deskripsi"],
     hargaBeli: json["harga_beli"],
+    // Pastikan key ini sesuai dengan JSON dari API Anda
     hargaJual: json["harga_jual"],
     promo: json["promo"],
     percentage: json["percentage"],
@@ -89,10 +92,12 @@ class Datum {
     "id": id,
     "kategori_id": kategoriId,
     "satuan_id": satuanId,
+    // Pastikan key ini sesuai untuk dikirim ke API Anda
     "nama_produk": namaProduk,
     "slug": slug,
     "deskripsi": deskripsi,
     "harga_beli": hargaBeli,
+    // Pastikan key ini sesuai untuk dikirim ke API Anda
     "harga_jual": hargaJual,
     "promo": promo,
     "percentage": percentage,

@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
@@ -28,6 +29,18 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+            <!-- START: Konfigurasi Deep Link untuk Duitku Payment -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Penting: android:scheme harus sama dengan APP_SCHEME_FLUTTER di Laravel (.env) -->
+                <!-- android:host harus sama dengan bagian host di returnUrl Anda, e.g., payment_status -->
+                <data android:scheme="posapp" android:host="payment_status" />
+            </intent-filter>
+            <!-- END: Konfigurasi Deep Link untuk Duitku Payment -->
+
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
@@ -46,5 +59,4 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
-    
 </manifest>

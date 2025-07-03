@@ -39,15 +39,28 @@ class LoginProvider extends GetConnect {
         ),
       );
 
-      final token = response.data['token'];
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', token);
-      await prefs.setBool("status", true);
-      // await prefs.setInt("idUser", response.data['id']);
-      if (kDebugMode) print('🔐 Token disimpan: $token');
+      if (kDebugMode) {
+        print('Login response: ${response.data}');
+      }
 
-      return true;
+      final token = response.data['token'];
+      final data = response.data['user'];
+
+      if (token != null && data != null && data['id'] != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', token);
+        await prefs.setBool("status", true);
+        await prefs.setInt("idUser", data['id']);
+        if (kDebugMode) print('🔐 Token disimpan: $token');
+        return true;
+      } else {
+        if (kDebugMode) print('⚠️ Token atau data user tidak ditemukan.');
+        return false;
+      }
     } on DioException catch (e) {
+      if (kDebugMode) {
+        print('❌ Login error: ${e.response?.data}');
+      }
       if (e.response?.statusCode == 422) {
         return false;
       } else {
