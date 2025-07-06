@@ -8,14 +8,20 @@ import '../modules/change_password/bindings/change_password_binding.dart';
 import '../modules/change_password/views/change_password_view.dart';
 import '../modules/checkout/bindings/checkout_binding.dart';
 import '../modules/checkout/views/checkout_view.dart';
+import '../modules/contact_us/bindings/contact_us_binding.dart';
+import '../modules/contact_us/views/contact_us_view.dart';
 import '../modules/detailorder/bindings/detailorder_binding.dart';
 import '../modules/detailorder/views/detailorder_view.dart';
 import '../modules/detailproduct/bindings/detailproduct_binding.dart';
 import '../modules/detailproduct/views/detailproduct_view.dart';
+import '../modules/faq/bindings/faq_binding.dart';
+import '../modules/faq/views/faq_view.dart';
 import '../modules/favorite/bindings/favorite_binding.dart';
 import '../modules/favorite/views/favorite_view.dart';
 import '../modules/home/bindings/home_binding.dart';
 import '../modules/home/views/home_view.dart';
+import '../modules/kebijakan_privasi/bindings/kebijakan_privasi_binding.dart';
+import '../modules/kebijakan_privasi/views/kebijakan_privasi_view.dart';
 import '../modules/login/bindings/login_binding.dart';
 import '../modules/login/views/login_view.dart';
 import '../modules/order/bindings/order_binding.dart';
@@ -36,6 +42,8 @@ import '../modules/splashscreen/bindings/splashscreen_binding.dart';
 import '../modules/splashscreen/views/splashscreen_view.dart';
 import '../modules/success/bindings/success_binding.dart';
 import '../modules/success/views/success_view.dart';
+import '../modules/syarat_ketentuan/bindings/syarat_ketentuan_binding.dart';
+import '../modules/syarat_ketentuan/views/syarat_ketentuan_view.dart';
 
 part 'app_routes.dart';
 
@@ -135,6 +143,26 @@ class AppPages {
       name: _Paths.CHANGE_PASSWORD,
       page: () => const ChangePasswordView(),
       binding: ChangePasswordBinding(),
+    ),
+    GetPage(
+      name: _Paths.FAQ,
+      page: () => const FaqView(),
+      binding: FaqBinding(),
+    ),
+    GetPage(
+      name: _Paths.KEBIJAKAN_PRIVASI,
+      page: () => const KebijakanPrivasiView(),
+      binding: KebijakanPrivasiBinding(),
+    ),
+    GetPage(
+      name: _Paths.SYARAT_KETENTUAN,
+      page: () => const SyaratKetentuanView(),
+      binding: SyaratKetentuanBinding(),
+    ),
+    GetPage(
+      name: _Paths.CONTACT_US,
+      page: () => const ContactUsView(),
+      binding: ContactUsBinding(),
     ),
   ];
 }

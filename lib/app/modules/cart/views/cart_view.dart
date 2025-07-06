@@ -29,50 +29,6 @@ class CartView extends GetView<CartController> {
     Get.put(controller);
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [blueClr, satu, tiga],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: SafeArea(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Icon back
-                Positioned(
-                  left: 16,
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.arrow_back, color: Colors.white),
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    'Keranjang Saya (${controller.cartItems.length})',
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
       body: Obx(() {
         if (controller.cartItems.isEmpty) {
           return Center(
@@ -140,31 +96,146 @@ class CartView extends GetView<CartController> {
           );
         }
 
-        return Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics(),
+        return CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 220.h,
+              floating: false,
+              pinned: true,
+              elevation: 0,
+              backgroundColor:
+                  tiga, // Warna fallback jika gradient tidak tampil
+              leading: Container(
+                margin: EdgeInsets.all(8.r),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(12.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10.r,
+                      offset: Offset(0, 4.h),
+                    ),
+                  ],
                 ),
-                shrinkWrap: true,
-                scrollDirection: Axis.vertical,
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
-                itemCount: controller.cartItems.length,
-                itemBuilder: (context, index) {
-                  final item = controller.cartItems[index];
-                  return _buildCartItemCard(item);
-                },
+                child: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_new,
+                    color: const Color(0xFF1A202C),
+                    size: 20.sp,
+                  ),
+                  onPressed: () => Get.back(),
+                ),
+              ),
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [tiga, dua, blueClr],
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: -40.h,
+                        left: -20.w,
+                        child: Container(
+                          width: 130.w,
+                          height: 130.h,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withOpacity(0.1),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: -30.h,
+                        right: -50.w,
+                        child: Container(
+                          width: 160.w,
+                          height: 160.h,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withOpacity(0.08),
+                          ),
+                        ),
+                      ),
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(height: 30.h),
+                            Container(
+                              padding: EdgeInsets.all(20.r),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(30.r),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.3),
+                                  width: 1.5.w,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons
+                                    .shopping_cart_outlined, // Ikon disesuaikan
+                                size: 40.sp,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 15.h),
+                            Obx(
+                              () => Text(
+                                'Keranjang Saya (${controller.cartItems.length})', // Teks disesuaikan
+                                style: GoogleFonts.poppins(
+                                  fontSize: 28.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 8.h),
+                            Text(
+                              'Periksa kembali item belanjaan Anda', // Sub-teks disesuaikan
+                              style: GoogleFonts.poppins(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white.withOpacity(0.8),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            _buildSummaryAndCheckoutButton(context),
+            SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 15.h),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final item = controller.cartItems[index];
+                  return _buildCartItemCard(item);
+                }, childCount: controller.cartItems.length),
+              ),
+            ),
           ],
         );
       }),
+      bottomNavigationBar: Obx(
+        () =>
+            controller.cartItems.isEmpty
+                ? const SizedBox.shrink()
+                : _buildSummaryAndCheckoutButton(context),
+      ),
     );
   }
 
   Widget _buildCartItemCard(CartItem item) {
+    // ... (kode widget ini tetap sama)
     return Container(
       margin: EdgeInsets.only(bottom: 12.h),
       padding: EdgeInsets.all(12.w),
@@ -279,6 +350,7 @@ class CartView extends GetView<CartController> {
   }
 
   Widget _buildSummaryAndCheckoutButton(BuildContext context) {
+    // ... (kode widget ini tetap sama, hanya dipindahkan ke bottomNavigationBar)
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
@@ -287,9 +359,18 @@ class CartView extends GetView<CartController> {
           topLeft: Radius.circular(20.r),
           topRight: Radius.circular(20.r),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            spreadRadius: 0,
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
       ),
       child: Obx(
         () => Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             _buildSummaryRow(
               'Subtotal (${controller.cartItems.length} items)',
@@ -312,14 +393,14 @@ class CartView extends GetView<CartController> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: blueClr,
                 foregroundColor: Colors.white,
-                minimumSize: Size(double.infinity, 40.h),
+                minimumSize: Size(double.infinity, 50.h),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.r),
                 ),
                 elevation: 0,
               ),
               child: Text(
-                'Lanjut ke Pembayaran (${controller.cartItems.length})',
+                'Lanjut ke Pembayaran',
                 style: GoogleFonts.poppins(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
@@ -333,6 +414,7 @@ class CartView extends GetView<CartController> {
   }
 
   Widget _buildSummaryRow(String label, int amount, {bool isTotal = false}) {
+    // ... (kode widget ini tetap sama)
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(

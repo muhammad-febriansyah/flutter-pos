@@ -23,6 +23,10 @@ abstract class Routes {
   static const DETAILPRODUCT = _Paths.DETAILPRODUCT;
   static const RATING = _Paths.RATING;
   static const CHANGE_PASSWORD = _Paths.CHANGE_PASSWORD;
+  static const FAQ = _Paths.FAQ;
+  static const KEBIJAKAN_PRIVASI = _Paths.KEBIJAKAN_PRIVASI;
+  static const SYARAT_KETENTUAN = _Paths.SYARAT_KETENTUAN;
+  static const CONTACT_US = _Paths.CONTACT_US;
 }
 
 abstract class _Paths {
@@ -45,4 +49,8 @@ abstract class _Paths {
   static const DETAILPRODUCT = '/detailproduct';
   static const RATING = '/rating';
   static const CHANGE_PASSWORD = '/change-password';
+  static const FAQ = '/faq';
+  static const KEBIJAKAN_PRIVASI = '/kebijakan-privasi';
+  static const SYARAT_KETENTUAN = '/syarat-ketentuan';
+  static const CONTACT_US = '/contact-us';
 }

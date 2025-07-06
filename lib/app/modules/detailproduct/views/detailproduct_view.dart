@@ -71,8 +71,8 @@ class DetailproductView extends GetView<DetailproductController> {
                         SizedBox(height: 24.h),
                         _buildDescription(),
                         SizedBox(height: 24.h),
-                        _buildSpecifications(),
-                        SizedBox(height: 120.h), // Padding untuk bottom bar
+                        // _buildSpecifications(),
+                        // SizedBox(height: 120.h), // Padding untuk bottom bar
                       ],
                     ),
                   ),
@@ -452,62 +452,6 @@ class DetailproductView extends GetView<DetailproductController> {
     );
   }
 
-  /// Spesifikasi: Unit dan Tanggal Ditambahkan.
-  Widget _buildSpecifications() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionTitle('Details'),
-        SizedBox(height: 12.h),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(16.r),
-          ),
-          child: Column(
-            children: [
-              _buildSpecRow('Unit', controller.product.satuan.satuan),
-              _buildSpecRow(
-                'Date Added',
-                DateFormat('d MMMM yyyy').format(controller.product.createdAt),
-                isLast: true,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSpecRow(String label, String value, {bool isLast = false}) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
-      decoration: BoxDecoration(
-        border:
-            isLast
-                ? null
-                : Border(bottom: BorderSide(color: Colors.grey.shade200)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(fontSize: 14.sp, color: _secondaryTextColor),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: _primaryTextColor,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   /// Judul untuk setiap seksi.
   Widget _buildSectionTitle(String title) {
     return Text(
@@ -555,7 +499,7 @@ class DetailproductView extends GetView<DetailproductController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Total Price',
+                    'Total Harga',
                     style: TextStyle(
                       fontSize: 12.sp,
                       color: _secondaryTextColor,

@@ -48,8 +48,6 @@ class HomeView extends GetView<HomeController> {
                       children: [
                         KategoriWidget(controller: controller),
                         SizedBox(height: 24.h),
-
-                        // Promo section
                         Row(
                           children: [
                             Container(

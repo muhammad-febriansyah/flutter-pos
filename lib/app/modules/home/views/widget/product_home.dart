@@ -31,16 +31,57 @@ class ProductHome extends StatelessWidget {
 
     return Obx(() {
       if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(blueClr),
+                strokeWidth: 3.w,
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                "Memuat produk...",
+                style: GoogleFonts.poppins(
+                  fontSize: 14.sp,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+        );
       }
 
       final promoData = controller.promoProduct.value?.data ?? [];
 
       if (promoData.isEmpty) {
-        return const Center(
-          child: Text(
-            "Tidak ada promo saat ini.",
-            style: TextStyle(color: Colors.grey),
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                HugeIcons.strokeRoundedShoppingBag03,
+                size: 80.sp,
+                color: Colors.grey[400],
+              ),
+              SizedBox(height: 16.h),
+              Text(
+                "Tidak ada promo saat ini",
+                style: GoogleFonts.poppins(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[600],
+                ),
+              ),
+              SizedBox(height: 8.h),
+              Text(
+                "Kembali lagi nanti untuk penawaran menarik!",
+                style: GoogleFonts.poppins(
+                  fontSize: 12.sp,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
           ),
         );
       }
@@ -49,161 +90,340 @@ class ProductHome extends StatelessWidget {
         itemCount: promoData.length,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 4.w),
         itemBuilder: (context, index) {
           final item = promoData[index];
 
-          return InkWell(
-            onTap: () {
-              // Ambil rating hanya jika belum ada
-              if (!controller.productRatingStats.containsKey(item.id)) {
-                controller.fetchAndSetProductRatingStats(item.id);
-              }
-              Get.toNamed(Routes.DETAILPRODUCT, arguments: item);
-            },
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 15.h),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16.r),
+          return Container(
+            margin: EdgeInsets.only(bottom: 16.h),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.08),
+                  spreadRadius: 0,
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(16.r),
-                        bottomLeft: Radius.circular(16.r),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  // Ambil rating hanya jika belum ada
+                  if (!controller.productRatingStats.containsKey(item.id)) {
+                    controller.fetchAndSetProductRatingStats(item.id);
+                  }
+                  Get.toNamed(Routes.DETAILPRODUCT, arguments: item);
+                },
+                borderRadius: BorderRadius.circular(16.r),
+                child: Padding(
+                  padding: EdgeInsets.all(12.w),
+                  child: Row(
+                    children: [
+                      // Product Image with enhanced styling
+                      Hero(
+                        tag: 'product-${item.id}',
+                        child: Container(
+                          width: 120.w,
+                          height: 120.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12.r),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.1),
+                                spreadRadius: 0,
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12.r),
+                            child: Stack(
+                              children: [
+                                Image.network(
+                                  "${dotenv.env['IMG_URL']}/${item.image}",
+                                  fit: BoxFit.cover,
+                                  width: 120.w,
+                                  height: 120.h,
+                                  errorBuilder:
+                                      (context, error, stackTrace) => Container(
+                                        color: Colors.grey[100],
+                                        child: Icon(
+                                          Icons.image_not_supported_outlined,
+                                          size: 40.sp,
+                                          color: Colors.grey[400],
+                                        ),
+                                      ),
+                                  loadingBuilder: (
+                                    context,
+                                    child,
+                                    loadingProgress,
+                                  ) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      color: Colors.grey[100],
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          value:
+                                              loadingProgress
+                                                          .expectedTotalBytes !=
+                                                      null
+                                                  ? loadingProgress
+                                                          .cumulativeBytesLoaded /
+                                                      loadingProgress
+                                                          .expectedTotalBytes!
+                                                  : null,
+                                          strokeWidth: 2.w,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                blueClr,
+                                              ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                // Promo badge
+                                Positioned(
+                                  top: 8.h,
+                                  left: 8.w,
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 6.w,
+                                      vertical: 2.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(4.r),
+                                    ),
+                                    child: Text(
+                                      "PROMO",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 8.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
-                      child: Image.network(
-                        "${dotenv.env['IMG_URL']}/${item.image}",
-                        fit: BoxFit.cover,
-                        width: 130.w,
-                        height: 150.h,
-                        errorBuilder:
-                            (context, error, stackTrace) =>
-                                const Icon(Icons.broken_image),
-                      ),
-                    ),
-                    SizedBox(width: 12.w),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
+
+                      SizedBox(width: 16.w),
+
+                      // Product Details
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Product Name
                             Text(
                               item.namaProduk,
                               style: GoogleFonts.poppins(
                                 fontSize: 16.sp,
                                 fontWeight: FontWeight.w600,
+                                color: Colors.grey[800],
+                                height: 1.2,
                               ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            SizedBox(height: 6.h),
+
+                            SizedBox(height: 4.h),
+
+                            // Product Description
                             Text(
                               item.deskripsi,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
+                              style: GoogleFonts.poppins(
                                 color: Colors.grey[600],
-                                fontSize: 13.sp,
+                                fontSize: 12.sp,
+                                height: 1.3,
                               ),
                             ),
-                            SizedBox(height: 8.h),
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(right: 4.w),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(5.r),
-                                    child: SvgPicture.network(
-                                      "${dotenv.env['IMG_URL']}/${item.kategori.icon}",
-                                      width: 20.w,
-                                      height: 20.h,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  item.kategori.kategori,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
+
                             SizedBox(height: 8.h),
 
-                            /// ⭐⭐ Bagian RATING ⭐⭐
+                            // Category with improved styling
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 4.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 16.w,
+                                    height: 16.h,
+                                    padding: EdgeInsets.all(2.w),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(4.r),
+                                    ),
+                                    child: SvgPicture.network(
+                                      "${dotenv.env['IMG_URL']}/${item.kategori.icon}",
+                                      width: 12.w,
+                                      height: 12.h,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                  SizedBox(width: 6.w),
+                                  Text(
+                                    item.kategori.kategori,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 11.sp,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            SizedBox(height: 8.h),
+
+                            // Rating Section with improved styling
                             Obx(() {
                               final productId = item.id;
                               final ratingStats =
                                   controller.productRatingStats[productId];
 
-                              return Row(
-                                children: [
-                                  Icon(
-                                    Icons.star,
-                                    color:
-                                        (ratingStats != null &&
-                                                ratingStats.totalRatings > 0)
-                                            ? Colors.amber
-                                            : Colors.grey,
-                                    size: 16.sp,
+                              return Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8.w,
+                                  vertical: 4.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange[50],
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  border: Border.all(
+                                    color: Colors.orange[200]!,
+                                    width: 0.5,
                                   ),
-                                  SizedBox(width: 4.w),
-                                  Text(
-                                    (ratingStats != null &&
-                                            ratingStats.totalRatings > 0)
-                                        ? ratingStats.averageRating
-                                            .toStringAsFixed(1)
-                                        : '0.0',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.star_rounded,
+                                      color:
+                                          (ratingStats != null &&
+                                                  ratingStats.totalRatings > 0)
+                                              ? Colors.orange[400]
+                                              : Colors.grey[400],
+                                      size: 16.sp,
                                     ),
-                                  ),
-                                  Text(
-                                    ratingStats != null
-                                        ? ' (${ratingStats.totalRatings})'
-                                        : ' (0)',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 10.sp,
-                                      color: Colors.grey,
+                                    SizedBox(width: 4.w),
+                                    Text(
+                                      (ratingStats != null &&
+                                              ratingStats.totalRatings > 0)
+                                          ? ratingStats.averageRating
+                                              .toStringAsFixed(1)
+                                          : '0.0',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.grey[800],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                    Text(
+                                      ratingStats != null
+                                          ? ' (${ratingStats.totalRatings})'
+                                          : ' (0)',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 10.sp,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               );
                             }),
 
-                            SizedBox(height: 8.h),
+                            SizedBox(height: 12.h),
+
+                            // Price and Add to Cart Button
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  formatRupiah(item.hargaJual),
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 15.sp,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.green[700],
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        formatRupiah(item.hargaJual),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.green[700],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
+
+                                // Enhanced Add to Cart Button
                                 Container(
                                   decoration: BoxDecoration(
-                                    color: blueClr,
-                                    borderRadius: BorderRadius.circular(10.r),
-                                  ),
-                                  child: IconButton(
-                                    onPressed: () {
-                                      cartController.addItem(item);
-                                    },
-                                    icon: Icon(
-                                      HugeIcons.strokeRoundedShoppingCart02,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        blueClr,
+                                        blueClr.withOpacity(0.8),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
-                                    color: Colors.white,
-                                    iconSize: 20.sp,
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: blueClr.withOpacity(0.3),
+                                        spreadRadius: 0,
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: () {
+                                        cartController.addItem(item);
+                                        // Optional: Show snackbar
+                                        Get.snackbar(
+                                          "Berhasil!",
+                                          "Produk ditambahkan ke keranjang",
+                                          snackPosition: SnackPosition.BOTTOM,
+                                          duration: const Duration(seconds: 2),
+                                          backgroundColor: Colors.green,
+                                          colorText: Colors.white,
+                                          margin: EdgeInsets.all(16.w),
+                                          borderRadius: 8.r,
+                                        );
+                                      },
+                                      borderRadius: BorderRadius.circular(12.r),
+                                      child: Padding(
+                                        padding: EdgeInsets.all(12.w),
+                                        child: Icon(
+                                          HugeIcons.strokeRoundedShoppingCart02,
+                                          color: Colors.white,
+                                          size: 20.sp,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -211,9 +431,8 @@ class ProductHome extends StatelessWidget {
                           ],
                         ),
                       ),
-                    ),
-                    SizedBox(width: 10.w),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

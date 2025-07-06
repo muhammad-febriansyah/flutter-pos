@@ -1,3 +1,8 @@
+// lib/app/modules/favorite/views/widget/favorite_product.dart
+// ✨ KODE YANG SUDAH DIPERBAIKI ✨
+
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,11 +11,12 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
-import 'package:pos/app/data/models/product.dart';
+// Pastikan kedua model ini di-import
+import 'package:pos/app/data/models/product.dart' as product_model;
+import 'package:pos/app/data/models/wishlist.dart' as wishlist_model;
 import 'package:pos/app/data/utils/color.dart';
 import 'package:pos/app/modules/favorite/controllers/favorite_controller.dart';
 import 'package:pos/app/routes/app_pages.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:pos/app/modules/cart/controllers/cart_controller.dart';
 import 'package:lottie/lottie.dart';
 
@@ -32,16 +38,17 @@ class FavoriteProduct extends StatelessWidget {
       return currencyFormatter.format(amount);
     }
 
-    return SizedBox(
-      width: double.infinity,
-      child: Obx(() {
-        final data = controller.filteredFavorites;
-        if (controller.isLoading.value && data.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    return Obx(() {
+      final data = controller.filteredFavorites;
+      if (controller.isLoading.value && data.isEmpty) {
+        return const SliverFillRemaining(
+          child: Center(child: CircularProgressIndicator()),
+        );
+      }
 
-        if (data.isEmpty) {
-          return Center(
+      if (data.isEmpty) {
+        return SliverFillRemaining(
+          child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -55,7 +62,7 @@ class FavoriteProduct extends StatelessWidget {
                 ),
                 SizedBox(height: 5.h),
                 Text(
-                  "Yah, produk belum tersedia!",
+                  "Yah, belum ada produk favorit!",
                   style: GoogleFonts.poppins(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
@@ -65,7 +72,7 @@ class FavoriteProduct extends StatelessWidget {
                 ),
                 SizedBox(height: 8.h),
                 Text(
-                  "Coba cari kategori lain atau periksa nanti ya.",
+                  "Tambahkan produk yang kamu suka ke favorit ya.",
                   style: GoogleFonts.poppins(
                     fontSize: 14.sp,
                     color: Colors.grey[500],
@@ -74,303 +81,426 @@ class FavoriteProduct extends StatelessWidget {
                 ),
               ],
             ),
-          );
-        }
+          ),
+        );
+      }
 
-        return SmartRefresher(
-          controller: controller.refreshController,
-          onRefresh: controller.onRefresh,
-          header: const WaterDropHeader(),
-          child: GridView.builder(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: data.length,
-            physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.all(15.w),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 15.w,
-              mainAxisSpacing: 15.h,
-              childAspectRatio: 0.49,
-            ),
-            itemBuilder: (context, index) {
-              final product = data[index];
-              final imageUrl =
-                  product.produk.image != null
-                      ? "$imgBaseUrl/${product.produk.image}"
-                      : 'https://via.placeholder.com/150';
+      return SliverPadding(
+        padding: EdgeInsets.all(15.w),
+        sliver: SliverGrid.builder(
+          itemCount: data.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 15.w,
+            mainAxisSpacing: 15.h,
+            childAspectRatio: 0.43,
+          ),
+          itemBuilder: (context, index) {
+            // Tipe data dari controller adalah Datum dari wishlist model
+            final wishlist_model.Datum favoriteItem = data[index];
+            final productFromWishlist =
+                favoriteItem.produk; // Ini adalah objek 'Produk' dari wishlist
 
-              final originalPrice = product.produk.hargaJual;
-              final promoPercentage = product.produk.percentage;
-              final promoPrice =
-                  originalPrice - (originalPrice * promoPercentage ~/ 100);
+            // ✅ PERBAIKAN: Konversi objek 'Produk' dari wishlist menjadi 'Datum' dari product model
+            // Ini mengasumsikan model 'Produk' punya method toJson() dan model 'Datum' punya fromJson()
+            final productForApp = product_model.Datum.fromJson(
+              productFromWishlist.toJson(),
+            );
 
-              final categoryIconUrl =
-                  product.produk.kategori.icon.isNotEmpty
-                      ? "$imgBaseUrl/${product.produk.kategori.icon}"
-                      : '';
+            final imageUrl =
+                productForApp.image != null
+                    ? "$imgBaseUrl/${productForApp.image}"
+                    : 'https://via.placeholder.com/150';
 
-              final avgRating = controller.getAverageRating(product.produkId);
-              // final totalRating = controller.getTotalRatings(product.produkId);
+            final originalPrice = productForApp.hargaJual;
+            final promoPercentage = productForApp.percentage;
+            final promoPrice =
+                originalPrice - (originalPrice * promoPercentage ~/ 100);
 
-              return InkWell(
-                onTap:
-                    () => Get.toNamed(Routes.DETAILPRODUCT, arguments: product),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15.r),
+            final categoryIconUrl =
+                productForApp.kategori.icon.isNotEmpty
+                    ? "$imgBaseUrl/${productForApp.kategori.icon}"
+                    : '';
+
+            final double avgRating = controller.getAverageRating(
+              favoriteItem.produkId,
+            );
+            final int totalRating = controller.getTotalRatings(
+              favoriteItem.produkId,
+            );
+
+            return InkWell(
+              // ✅ PERBAIKAN 1: Kirim objek produk yang sudah dikonversi ke halaman detail
+              onTap:
+                  () => Get.toNamed(
+                    Routes.DETAILPRODUCT,
+                    arguments:
+                        productForApp, // Gunakan objek yang sudah benar tipenya
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(15.r),
-                              topRight: Radius.circular(15.r),
-                            ),
-                            child: Image.network(
-                              imageUrl,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: 120.h,
-                              loadingBuilder: (context, child, progress) {
-                                if (progress == null) return child;
-                                return Container(
-                                  height: 120.h,
-                                  color: Colors.grey[200],
-                                  child: const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  height: 120.h,
-                                  color: Colors.grey[200],
-                                  child: Icon(
-                                    Icons.broken_image,
-                                    size: 50.sp,
-                                    color: Colors.grey[400],
-                                  ),
-                                );
-                              },
-                            ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20.r),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20.r),
+                            topRight: Radius.circular(20.r),
                           ),
-                          Positioned(
-                            top: 8.h,
-                            right: 8.w,
-                            child: CircleAvatar(
-                              radius: 18.r,
-                              backgroundColor: Colors.white.withAlpha(220),
-                              child: IconButton(
-                                iconSize: 20.sp,
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                icon: Obx(() {
-                                  final isWishlisted = controller
-                                      .isProductWishlisted(product.produkId);
-                                  return Icon(
-                                    isWishlisted
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    color:
-                                        isWishlisted
-                                            ? Colors.red
-                                            : Colors.grey[600],
-                                  );
-                                }),
-                                onPressed: () {
-                                  controller.toggleWishlist(product.produkId);
-                                },
-                              ),
-                            ),
-                          ),
-                          if (product.produk.promo == 1 &&
-                              product.produk.percentage > 0)
-                            Positioned(
-                              top: 8.h,
-                              left: 8.w,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 6.w,
-                                  vertical: 3.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
-                                child: Text(
-                                  "${product.produk.percentage}% OFF",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 10.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.all(12.w),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Stack(
                             children: [
-                              Text(
-                                product.produk.namaProduk,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.grey[850],
+                              Image.network(
+                                imageUrl,
+                                width: double.infinity,
+                                height: 130.h,
+                                fit: BoxFit.cover,
+                                errorBuilder:
+                                    (_, __, ___) => Container(
+                                      width: double.infinity,
+                                      height: 130.h,
+                                      color: Colors.grey[200],
+                                      child: Icon(
+                                        Icons.broken_image_outlined,
+                                        size: 50.sp,
+                                        color: Colors.grey[400],
+                                      ),
+                                    ),
+                              ),
+                              Container(
+                                width: double.infinity,
+                                height: 130.h,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black.withOpacity(0.05),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              SizedBox(height: 4.h),
-                              Row(
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          top: 10.h,
+                          right: 10.w,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.95),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: IconButton(
+                              iconSize: 20.sp,
+                              padding: EdgeInsets.all(8.w),
+                              constraints: const BoxConstraints(),
+                              icon: Obx(() {
+                                final isWishlisted = controller
+                                    .isProductWishlisted(favoriteItem.produkId);
+                                return Icon(
+                                  isWishlisted
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color:
+                                      isWishlisted
+                                          ? Colors.red[400]
+                                          : Colors.grey[600],
+                                );
+                              }),
+                              onPressed: () {
+                                controller.toggleWishlist(
+                                  favoriteItem.produkId,
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+
+                        if (productForApp.promo == 1 &&
+                            productForApp.percentage > 0)
+                          Positioned(
+                            top: 10.h,
+                            left: 10.w,
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 4.h,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Colors.red[400]!, Colors.red[600]!],
+                                ),
+                                borderRadius: BorderRadius.circular(12.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.red.withOpacity(0.3),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                "${productForApp.percentage}% OFF",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(14.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              productForApp.namaProduk,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.poppins(
+                                fontSize: 15.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[800],
+                                height: 1.2,
+                              ),
+                            ),
+                            SizedBox(height: 6.h),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 4.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.amber.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8.r),
+                                border: Border.all(
+                                  color: Colors.amber.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  ...List.generate(
-                                    5,
-                                    (i) => Icon(
-                                      i < avgRating.floor()
-                                          ? Icons.star
-                                          : Icons.star_border,
-                                      size: 14.sp,
-                                      color:
-                                          avgRating > 0
-                                              ? Colors.amber
-                                              : Colors.grey[400],
-                                    ),
+                                  Icon(
+                                    Icons.star,
+                                    size: 14.sp,
+                                    color:
+                                        avgRating == 0
+                                            ? Colors.grey[400]
+                                            : Colors.amber[600],
                                   ),
                                   SizedBox(width: 4.w),
                                   Text(
-                                    avgRating > 0
-                                        ? (avgRating.toStringAsFixed(1))
-                                        : '(0.0)',
+                                    avgRating.toStringAsFixed(1),
                                     style: GoogleFonts.poppins(
                                       fontSize: 12.sp,
-                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w600,
+                                      color:
+                                          avgRating == 0
+                                              ? Colors.grey[500]
+                                              : Colors.amber[700],
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Text(
+                                    "($totalRating)",
+                                    style: TextStyle(
+                                      fontSize: 11.sp,
+                                      color: Colors.grey[500],
                                     ),
                                   ),
                                 ],
                               ),
-
-                              SizedBox(height: 4.h),
-                              Row(
+                            ),
+                            SizedBox(height: 6.h),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8.w,
+                                vertical: 4.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.05),
+                                borderRadius: BorderRadius.circular(8.r),
+                                border: Border.all(
+                                  color: Colors.blue.withOpacity(0.1),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   if (categoryIconUrl.isNotEmpty)
-                                    Padding(
-                                      padding: EdgeInsets.only(right: 4.w),
-                                      child: SvgPicture.network(
-                                        categoryIconUrl,
-                                        width: 16.w,
-                                        height: 16.h,
-                                        errorBuilder:
-                                            (context, error, _) => Icon(
-                                              HugeIcons
-                                                  .strokeRoundedSpoonAndFork,
-                                              size: 16.sp,
-                                              color: Colors.grey[600],
-                                            ),
+                                    SvgPicture.network(
+                                      categoryIconUrl,
+                                      width: 14.w,
+                                      height: 14.h,
+                                      colorFilter: ColorFilter.mode(
+                                        Colors.blue[600]!,
+                                        BlendMode.srcIn,
                                       ),
+                                      placeholderBuilder:
+                                          (_) => Icon(
+                                            HugeIcons.strokeRoundedSpoonAndFork,
+                                            size: 14.sp,
+                                            color: Colors.blue[600],
+                                          ),
                                     )
                                   else
                                     Icon(
                                       HugeIcons.strokeRoundedSpoonAndFork,
-                                      size: 16.sp,
-                                      color: Colors.grey[600],
+                                      size: 14.sp,
+                                      color: Colors.blue[600],
                                     ),
-                                  Expanded(
+                                  SizedBox(width: 4.w),
+                                  Flexible(
                                     child: Text(
-                                      product.produk.kategori.kategori,
+                                      productForApp.kategori.kategori,
                                       style: GoogleFonts.poppins(
                                         fontSize: 11.sp,
-                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.blue[600],
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                 ],
                               ),
-                              const Spacer(),
-                              if (product.produk.promo == 1 &&
-                                  product.produk.percentage > 0)
-                                Text(
-                                  formatRupiah(originalPrice),
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 12.sp,
-                                    color: Colors.red,
-                                    decoration: TextDecoration.lineThrough,
-                                  ),
+                            ),
+                            const Spacer(),
+                            if (productForApp.promo == 1 &&
+                                productForApp.percentage > 0)
+                              Text(
+                                formatRupiah(originalPrice),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12.sp,
+                                  color: Colors.grey[500],
+                                  decoration: TextDecoration.lineThrough,
+                                  decorationColor: Colors.grey[400],
+                                  decorationThickness: 2,
                                 ),
-                              SizedBox(height: 4.h),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
+                              ),
+                            SizedBox(height: 2.h),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
                                     formatRupiah(
-                                      product.produk.promo == 1 &&
-                                              product.produk.percentage > 0
+                                      productForApp.promo == 1 &&
+                                              productForApp.percentage > 0
                                           ? promoPrice
                                           : originalPrice,
                                     ),
                                     style: GoogleFonts.poppins(
                                       fontSize: 16.sp,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.green[700],
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          productForApp.promo == 1 &&
+                                                  productForApp.percentage > 0
+                                              ? Colors.red[600]
+                                              : Colors.green[700],
                                     ),
                                   ),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: blueClr,
-                                      borderRadius: BorderRadius.circular(10.r),
+                                ),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        blueClr,
+                                        blueClr.withOpacity(0.8),
+                                      ],
                                     ),
-                                    child: IconButton(
-                                      onPressed: () {
+                                    borderRadius: BorderRadius.circular(12.r),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: blueClr.withOpacity(0.3),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      // ✅ PERBAIKAN 2: Tambahkan produk yang sudah dikonversi ke keranjang
+                                      onTap: () {
                                         cartController.addItem(
-                                          product.produk as Datum,
+                                          productForApp, // Gunakan objek yang sudah benar tipenya
                                         );
                                         Get.snackbar(
                                           'Berhasil Ditambahkan',
-                                          '${product.produk.namaProduk} ditambahkan ke keranjang.',
-                                          snackPosition: SnackPosition.TOP,
-                                          icon: Icon(
-                                            Icons.check_circle_sharp,
-                                            color: Colors.white,
-                                            size: 18.sp,
-                                          ),
-                                          backgroundColor: Colors.green,
+                                          '${productForApp.namaProduk} ke keranjang.',
+                                          backgroundColor: Colors.green[600],
                                           colorText: Colors.white,
+                                          icon: Container(
+                                            padding: EdgeInsets.all(4.w),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withOpacity(
+                                                0.2,
+                                              ),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.check_circle,
+                                              color: Colors.white,
+                                              size: 18.sp,
+                                            ),
+                                          ),
+                                          snackPosition: SnackPosition.TOP,
+                                          duration: const Duration(seconds: 2),
+                                          margin: EdgeInsets.all(10.w),
+                                          borderRadius: 12.r,
                                         );
                                       },
-                                      icon: Icon(
-                                        HugeIcons.strokeRoundedShoppingCart02,
-                                        color: Colors.white,
-                                        size: 18.sp,
+                                      borderRadius: BorderRadius.circular(12.r),
+                                      child: Container(
+                                        padding: EdgeInsets.all(10.w),
+                                        child: Icon(
+                                          HugeIcons.strokeRoundedShoppingCart02,
+                                          size: 18.sp,
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                      padding: EdgeInsets.all(8.w),
-                                      constraints: const BoxConstraints(),
                                     ),
                                   ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              );
-            },
-          ),
-        );
-      }),
-    );
+              ),
+            );
+          },
+        ),
+      );
+    });
   }
 }

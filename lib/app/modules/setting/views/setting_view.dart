@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pos/app/routes/app_pages.dart';
@@ -31,7 +32,10 @@ class SettingView extends GetView<SettingController> {
                 // Gunakan data user jika ada, jika tidak gunakan nilai default
                 name: user?.name ?? "Nama Pengguna",
                 email: user?.email ?? "email@pengguna.com",
-                avatarUrl: user?.avatar, // Avatar bisa null
+                avatarUrl:
+                    (user?.avatar != null && user!.avatar!.isNotEmpty)
+                        ? "${dotenv.env['IMG_URL']}/${user.avatar}"
+                        : "https://ui-avatars.com/api/?name=${Uri.encodeComponent(user?.name ?? 'User')}&background=0000FF&color=FFFFFF",
               );
             }),
             const SizedBox(height: 20),
@@ -64,22 +68,30 @@ class SettingView extends GetView<SettingController> {
                 _buildSettingTile(
                   icon: Icons.help_outline_rounded,
                   title: "Pusat Bantuan (FAQ)",
-                  onTap: () {},
+                  onTap: () {
+                    Get.toNamed(Routes.FAQ);
+                  },
                 ),
                 _buildSettingTile(
                   icon: Icons.support_agent_rounded,
                   title: "Hubungi Kami",
-                  onTap: () {},
+                  onTap: () {
+                    Get.toNamed(Routes.CONTACT_US);
+                  },
                 ),
                 _buildSettingTile(
                   icon: Icons.shield_outlined,
                   title: "Kebijakan Privasi",
-                  onTap: () {},
+                  onTap: () {
+                    Get.toNamed(Routes.KEBIJAKAN_PRIVASI);
+                  },
                 ),
                 _buildSettingTile(
                   icon: Icons.description_outlined,
                   title: "Syarat & Ketentuan",
-                  onTap: () {},
+                  onTap: () {
+                    Get.toNamed(Routes.SYARAT_KETENTUAN);
+                  },
                 ),
               ],
             ),
@@ -104,10 +116,12 @@ class SettingView extends GetView<SettingController> {
           CircleAvatar(
             radius: 32,
             backgroundColor: _accentColor,
-            // Tampilkan gambar dari URL jika ada, jika tidak tampilkan ikon
-            backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+            backgroundImage:
+                (avatarUrl != null && avatarUrl.isNotEmpty)
+                    ? NetworkImage(avatarUrl)
+                    : null,
             child:
-                avatarUrl == null
+                (avatarUrl == null || avatarUrl.isEmpty)
                     ? const Icon(
                       Icons.person_rounded,
                       color: Colors.white,
@@ -115,6 +129,7 @@ class SettingView extends GetView<SettingController> {
                     )
                     : null,
           ),
+
           const SizedBox(width: 16),
           Expanded(
             child: Column(

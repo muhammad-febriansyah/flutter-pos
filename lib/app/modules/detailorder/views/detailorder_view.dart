@@ -4,14 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart'; // <-- Tambahkan import ini
 import 'package:intl/intl.dart';
 import 'package:pos/app/data/models/penjualan.dart';
-import 'package:pos/app/data/utils/color.dart';
+// Hapus import color.dart jika warna sudah didefinisikan di sini
+// import 'package:pos/app/data/utils/color.dart';
 import '../controllers/detailorder_controller.dart';
+
+// Definisi Warna yang dibutuhkan oleh AppBar baru
+const blueClr = Color(0xff1b55f6);
+const satu = Color(0xFF004FC2);
+const dua = Color(0xFF0044AC);
+const tiga = Color(0xFF01399A);
 
 class DetailorderView extends GetView<DetailorderController> {
   const DetailorderView({super.key});
 
+  // Helper methods tetap sama
   Color _getStatusColor(Status status) {
     switch (status) {
       case Status.PAID:
@@ -62,95 +71,162 @@ class DetailorderView extends GetView<DetailorderController> {
       backgroundColor: const Color(0xFFF8FAFC),
       body: CustomScrollView(
         slivers: [
+          // == SLIVER APP BAR BARU ==
           SliverAppBar(
-            expandedHeight: 200.h,
+            expandedHeight: 220.h,
             floating: false,
-            leading: IconButton(
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.arrow_back, color: Colors.white),
-              ),
-              onPressed: () => Get.back(),
-            ),
             pinned: true,
-            backgroundColor: blueClr,
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            automaticallyImplyLeading: false,
+            leading: Container(
+              margin: EdgeInsets.all(8.r),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(12.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10.r,
+                    offset: Offset(0, 4.h),
+                  ),
+                ],
+              ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new,
+                  color: const Color(0xFF1A202C),
+                  size: 20.sp,
+                ),
+                onPressed: () => Get.back(),
+              ),
+            ),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [blueClr, satu, tiga],
+                    colors: [tiga, dua, blueClr], // Variasi gradient
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
                   ),
                 ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(20.w, 60.h, 20.w, 20.h),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          order.invoiceNumber,
-                          style: TextStyle(
-                            fontSize: 24.sp,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                child: Stack(
+                  children: [
+                    // Elemen dekoratif
+                    Positioned(
+                      top: -40.h,
+                      left: -20.w,
+                      child: Container(
+                        width: 130.w,
+                        height: 130.h,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.1),
                         ),
-                        SizedBox(height: 8.h),
-                        Text(
-                          DateFormat('dd MMM yyyy, HH:mm').format(
-                            order.createdAt.toUtc().add(
-                              const Duration(hours: 7),
-                            ), // konversi ke WIB
-                          ),
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            color: Colors.white70,
-                          ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: -30.h,
+                      right: -50.w,
+                      child: Container(
+                        width: 160.w,
+                        height: 160.h,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.08),
                         ),
-                        SizedBox(height: 12.h),
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 8.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20.r),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                _getStatusIcon(order.status),
-                                size: 18.sp,
-                                color: _getStatusColor(order.status),
+                      ),
+                    ),
+                    // Konten Utama AppBar (disesuaikan dengan data order)
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(16.r),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1.5.w,
                               ),
-                              SizedBox(width: 8.w),
-                              Text(
-                                order.status.name.toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
+                            ),
+                            child: Icon(
+                              Icons.receipt_long_rounded, // Ikon disesuaikan
+                              size: 32.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 12.h),
+                          Text(
+                            order.invoiceNumber, // Teks disesuaikan
+                            style: GoogleFonts.poppins(
+                              fontSize: 22.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            // Sub-teks disesuaikan
+                            DateFormat('dd MMMM yyyy, HH:mm').format(
+                              order.createdAt.toUtc().add(
+                                const Duration(hours: 7),
+                              ),
+                            ),
+                            style: GoogleFonts.poppins(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white.withOpacity(0.8),
+                            ),
+                          ),
+                          SizedBox(height: 12.h),
+                          // Status Badge
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12.w,
+                              vertical: 6.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(
+                                order.status,
+                              ).withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20.r),
+                              border: Border.all(
+                                color: _getStatusColor(order.status),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _getStatusIcon(order.status),
+                                  size: 14.sp,
                                   color: _getStatusColor(order.status),
                                 ),
-                              ),
-                            ],
+                                SizedBox(width: 6.w),
+                                Text(
+                                  order.status.name.toUpperCase(),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: _getStatusColor(order.status),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
           ),
+          // Konten di bawah AppBar tetap sama
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.all(20.w),
@@ -172,6 +248,7 @@ class DetailorderView extends GetView<DetailorderController> {
     );
   }
 
+  // Widget _buildOrderItemsSection, _buildInfoCard, dan lainnya tetap sama
   Widget _buildOrderItemsSection() {
     return Container(
       padding: EdgeInsets.all(20.w),
@@ -503,6 +580,4 @@ class DetailorderView extends GetView<DetailorderController> {
       ),
     );
   }
-
-  // ... _buildInfoCard, _buildInfoItem, _buildInfoRow, _buildOrderItemsSection, _buildPaymentSummaryCard, _buildPaymentRow tetap seperti sebelumnya
 }

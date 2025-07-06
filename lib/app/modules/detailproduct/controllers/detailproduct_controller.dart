@@ -7,31 +7,52 @@ import 'package:pos/app/data/home_provider.dart';
 import 'package:pos/app/data/models/product.dart';
 
 class DetailproductController extends GetxController {
-  // Observable variables
   var isWishlisted = false.obs;
   var quantity = 1.obs;
   var selectedSize = ''.obs;
   var isDescriptionExpanded = false.obs;
   var isWishlistLoading = false.obs;
 
-  // Product data - this should be passed from previous screen
   late Datum product;
 
-  // Provider instance
   final HomeProvider _homeProvider = Get.find<HomeProvider>();
 
   @override
   void onInit() {
     super.onInit();
-    // Get product data from arguments
-    if (Get.arguments != null && Get.arguments is Datum) {
-      product = Get.arguments as Datum;
-      // Check if product is already in wishlist
-      _checkWishlistStatus();
+    final arguments = Get.arguments;
+
+    if (arguments != null) {
+      bool productInitialized = false;
+
+      if (arguments is Datum) {
+        product = arguments;
+        productInitialized = true;
+      } else if (arguments is Map) {
+        try {
+          product = Datum.fromJson(arguments as Map<String, dynamic>);
+          productInitialized = true;
+        } catch (e) {
+          if (kDebugMode) {
+            print("Error converting Map to Datum: $e");
+          }
+          Get.snackbar('Error', 'Data produk tidak valid.');
+          Get.back();
+        }
+      }
+
+      if (productInitialized) {
+        _checkWishlistStatus();
+      } else {
+        Get.snackbar('Error', 'Tipe data produk tidak dikenali.');
+        Get.back();
+      }
+    } else {
+      Get.snackbar('Error', 'Tidak ada produk yang dipilih.');
+      Get.back();
     }
   }
 
-  // Check if current product is in wishlist
   Future<void> _checkWishlistStatus() async {
     try {
       isWishlistLoading.value = true;
@@ -46,14 +67,11 @@ class DetailproductController extends GetxController {
     }
   }
 
-  // Toggle wishlist status with API integration
   Future<void> toggleWishlist() async {
     try {
       isWishlistLoading.value = true;
-
       bool success;
       if (isWishlisted.value) {
-        // Remove from wishlist
         success = await _homeProvider.removeFromWishlist(product.id);
         if (success) {
           isWishlisted.value = false;
@@ -78,7 +96,6 @@ class DetailproductController extends GetxController {
           );
         }
       } else {
-        // Add to wishlist
         success = await _homeProvider.addToWishlist(product.id);
         if (success) {
           isWishlisted.value = true;
@@ -121,12 +138,10 @@ class DetailproductController extends GetxController {
     }
   }
 
-  // Refresh wishlist status (useful when returning from wishlist page)
   Future<void> refreshWishlistStatus() async {
     await _checkWishlistStatus();
   }
 
-  // Increment quantity (fixed method name)
   void increaseQuantity() {
     if (quantity.value < product.stok) {
       quantity.value++;
@@ -143,19 +158,16 @@ class DetailproductController extends GetxController {
     }
   }
 
-  // Decrement quantity (fixed method name)
   void decreaseQuantity() {
     if (quantity.value > 1) {
       quantity.value--;
     }
   }
 
-  // Toggle description expanded state
   void toggleDescription() {
     isDescriptionExpanded.value = !isDescriptionExpanded.value;
   }
 
-  // Add to cart
   void addToCart() {
     if (product.stok <= 0) {
       Get.snackbar(
@@ -170,7 +182,6 @@ class DetailproductController extends GetxController {
       return;
     }
 
-    // Add your cart logic here
     Get.snackbar(
       'Keranjang',
       '${quantity.value} ${product.namaProduk} ditambahkan ke keranjang',
@@ -180,21 +191,12 @@ class DetailproductController extends GetxController {
       duration: const Duration(seconds: 2),
       snackPosition: SnackPosition.BOTTOM,
     );
-
-    // You can also navigate to cart or perform other actions
-    // Get.toNamed('/cart');
   }
 
-  // Calculate total price
   int get totalPrice => product.hargaJual * quantity.value;
-
-  // Check if product has discount
   bool get hasDiscount => product.promo > 0;
-
-  // Get discounted price
   int get discountedPrice => product.hargaJual - product.promo;
 
-  // Get discount percentage (assuming it exists in the model)
   String get discountPercentage {
     if (hasDiscount) {
       double percentage = (product.promo / product.hargaJual) * 100;
@@ -203,9 +205,6 @@ class DetailproductController extends GetxController {
     return '0';
   }
 
-  // Get formatted price with discount
   int get finalPrice => hasDiscount ? discountedPrice : product.hargaJual;
-
-  // Get final total price with quantity and discount
   int get finalTotalPrice => finalPrice * quantity.value;
 }

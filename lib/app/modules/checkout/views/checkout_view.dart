@@ -6,15 +6,14 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
-import 'package:pos/app/data/utils/color.dart'; // Asumsi ini mendefinisikan blueClr, satu, tiga
+import 'package:pos/app/data/utils/color.dart';
 import 'package:pos/app/modules/cart/controllers/cart_controller.dart';
 import 'package:pos/app/modules/checkout/controllers/checkout_controller.dart';
-import 'package:flutter/foundation.dart'; // Import for kDebugMode
+import 'package:flutter/foundation.dart';
 
 class CheckoutView extends GetView<CheckoutController> {
   const CheckoutView({super.key});
 
-  // Fungsi untuk mengubah angka menjadi format Rupiah
   String formatRupiah(int amount) {
     final NumberFormat currencyFormatter = NumberFormat.currency(
       locale: 'id_ID',
@@ -31,44 +30,124 @@ class CheckoutView extends GetView<CheckoutController> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          'Pembayaran', // Judul AppBar
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-            fontSize: 20.sp,
-          ),
-        ),
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [blueClr, satu, tiga],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        leading: IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.arrow_back, color: Colors.white),
-          ),
-          onPressed: () => Get.back(), // Kembali ke halaman sebelumnya
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(
-                parent: AlwaysScrollableScrollPhysics(),
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          // --- AppBar Kustom dengan Desain Baru ---
+          SliverAppBar(
+            expandedHeight: 220.h,
+            floating: false,
+            pinned: true,
+            elevation: 0,
+            backgroundColor: tiga, // Warna fallback
+            leading: Container(
+              margin: EdgeInsets.all(8.r),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(12.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10.r,
+                    offset: Offset(0, 4.h),
+                  ),
+                ],
               ),
-              scrollDirection: Axis.vertical,
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new,
+                  color: const Color(0xFF1A202C),
+                  size: 20.sp,
+                ),
+                onPressed: () => Get.back(),
+              ),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [tiga, dua, blueClr],
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: -40.h,
+                      left: -20.w,
+                      child: Container(
+                        width: 130.w,
+                        height: 130.h,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: -30.h,
+                      right: -50.w,
+                      child: Container(
+                        width: 160.w,
+                        height: 160.h,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.08),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(height: 30.h),
+                          Container(
+                            padding: EdgeInsets.all(20.r),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(30.r),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1.5.w,
+                              ),
+                            ),
+                            child: Icon(
+                              HugeIcons
+                                  .strokeRoundedCreditCard, // Ikon disesuaikan untuk pembayaran
+                              size: 40.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 15.h),
+                          Text(
+                            'Pembayaran', // Teks disesuaikan
+                            style: GoogleFonts.poppins(
+                              fontSize: 28.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            'Selesaikan pesanan Anda di sini', // Sub-teks disesuaikan
+                            style: GoogleFonts.poppins(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // --- Konten Utama Halaman Checkout ---
+          SliverToBoxAdapter(
+            child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,8 +167,8 @@ class CheckoutView extends GetView<CheckoutController> {
                         Expanded(
                           child: _buildOrderTypeCard(
                             context,
-                            'Makan di Sini', // Lebih sederhana
-                            'Duduk dan nikmati hidangan Anda.', // Deskripsi lebih jelas
+                            'Makan di Sini',
+                            'Duduk dan nikmati hidangan Anda.',
                             'dine_in',
                             controller.selectedOrderType.value,
                             (value) =>
@@ -101,8 +180,8 @@ class CheckoutView extends GetView<CheckoutController> {
                         Expanded(
                           child: _buildOrderTypeCard(
                             context,
-                            'Bawa Pulang', // Lebih sederhana
-                            'Siap untuk dibawa pulang dan dinikmati di mana saja.', // Deskripsi lebih jelas
+                            'Bawa Pulang',
+                            'Siap untuk dibawa pulang.',
                             'take_away',
                             controller.selectedOrderType.value,
                             (value) =>
@@ -114,8 +193,6 @@ class CheckoutView extends GetView<CheckoutController> {
                     ),
                   ),
                   SizedBox(height: 25.h),
-
-                  // Tampilan kondisional untuk pilihan meja atau info bawa pulang
                   Obx(() {
                     if (controller.selectedOrderType.value == 'dine_in') {
                       return _buildTableSelectionGrid(context, controller);
@@ -123,9 +200,8 @@ class CheckoutView extends GetView<CheckoutController> {
                         'take_away') {
                       return _buildTakeAwayInfoCard(context);
                     }
-                    return const SizedBox.shrink(); // Sembunyikan jika belum ada pilihan
+                    return const SizedBox.shrink();
                   }),
-
                   SizedBox(height: 25.h),
                   Container(
                     padding: EdgeInsets.all(18.w),
@@ -145,7 +221,7 @@ class CheckoutView extends GetView<CheckoutController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Ringkasan Pesanan Anda', // Lebih personal
+                          'Ringkasan Pesanan Anda',
                           style: GoogleFonts.poppins(
                             fontSize: 18.sp,
                             fontWeight: FontWeight.bold,
@@ -154,32 +230,31 @@ class CheckoutView extends GetView<CheckoutController> {
                         ),
                         SizedBox(height: 15.h),
                         _buildSummaryRow(
-                          'Total Pesanan (${cartController.cartItems.length} item)', // Lebih jelas
+                          'Total Pesanan (${cartController.cartItems.length} item)',
                           cartController.subTotal.value,
                         ),
                         _buildSummaryRow(
-                          'Pajak PPN (${cartController.setting.value?.data.ppn ?? 0}%)', // Tulis lengkap PPN
+                          'Pajak PPN (${cartController.setting.value?.data.ppn ?? 0}%)',
                           cartController.ppnAmount.value,
                         ),
                         _buildSummaryRow(
-                          'Biaya Layanan', // Tanpa spasi ekstra
+                          'Biaya Layanan',
                           cartController.biayaLayanan.value,
                         ),
                         SizedBox(height: 10.h),
                         Divider(height: 1.h, color: Colors.grey[200]),
                         SizedBox(height: 10.h),
                         _buildSummaryRow(
-                          'Total Akhir', // Lebih final
+                          'Total Akhir',
                           cartController.total.value,
                           isTotal: true,
                         ),
                       ],
                     ),
                   ),
-
                   SizedBox(height: 25.h),
                   Text(
-                    'Pilih metode pembayaran yang Anda inginkan:', // Instruksi lebih jelas
+                    'Pilih metode pembayaran yang Anda inginkan:',
                     style: GoogleFonts.poppins(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
@@ -192,8 +267,8 @@ class CheckoutView extends GetView<CheckoutController> {
                       children: [
                         _buildPaymentMethodCard(
                           context,
-                          'Bayar Tunai', // Lebih ringkas
-                          'Bayar langsung di kasir dengan uang tunai.', // Lebih deskriptif
+                          'Bayar Tunai',
+                          'Bayar langsung di kasir dengan uang tunai.',
                           'cash',
                           controller.selectedPaymentMethod.value,
                           (value) =>
@@ -203,8 +278,8 @@ class CheckoutView extends GetView<CheckoutController> {
                         SizedBox(height: 12.h),
                         _buildPaymentMethodCard(
                           context,
-                          'Bayar Online (Midtrans)', // Sebutkan "online"
-                          'Bayar via kartu kredit/debit, e-wallet, atau transfer bank melalui Midtrans.', // Penjelasan lebih lengkap
+                          'Bayar Online (Midtrans)',
+                          'Bayar via kartu kredit/debit, e-wallet, dll.',
                           'midtrans',
                           controller.selectedPaymentMethod.value,
                           (value) =>
@@ -219,24 +294,24 @@ class CheckoutView extends GetView<CheckoutController> {
               ),
             ),
           ),
-          // Tombol Konfirmasi & Bayar
-          _buildCheckoutButton(context, cartController),
         ],
       ),
+      bottomNavigationBar: _buildCheckoutButton(context, cartController),
     );
   }
 
-  // --- Widget Bantuan yang Dapat Digunakan Kembali ---
+  // Widget-widget bantuan lainnya tetap sama
+  // ... (Salin semua widget bantuan dari _buildSummaryRow hingga _buildCheckoutButton di sini)
 
-  // Baris ringkasan pembayaran (Subtotal, PPN, dll.)
+  // Baris ringkasan pembayaran
   Widget _buildSummaryRow(String label, int amount, {bool isTotal = false}) {
+    // ... (kode widget ini tetap sama)
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            // Added Expanded
             child: Text(
               label,
               style: GoogleFonts.poppins(
@@ -244,11 +319,11 @@ class CheckoutView extends GetView<CheckoutController> {
                 fontWeight: isTotal ? FontWeight.w600 : FontWeight.normal,
                 color: isTotal ? Colors.black : Colors.grey[700],
               ),
-              overflow: TextOverflow.ellipsis, // Added
-              maxLines: 1, // Added
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
-          SizedBox(width: 10.w), // Added space between label and amount
+          SizedBox(width: 10.w),
           Text(
             formatRupiah(amount),
             style: GoogleFonts.poppins(
@@ -262,7 +337,7 @@ class CheckoutView extends GetView<CheckoutController> {
     );
   }
 
-  // Kartu pilihan jenis pesanan (Makan di Sini / Bawa Pulang)
+  // Kartu pilihan jenis pesanan
   Widget _buildOrderTypeCard(
     BuildContext context,
     String title,
@@ -272,6 +347,7 @@ class CheckoutView extends GetView<CheckoutController> {
     ValueChanged<String?> onChanged,
     IconData icon,
   ) {
+    // ... (kode widget ini tetap sama)
     final bool isSelected = value == groupValue;
     return GestureDetector(
       onTap: () => onChanged(value),
@@ -314,8 +390,8 @@ class CheckoutView extends GetView<CheckoutController> {
                 color: isSelected ? blueClr : Colors.black87,
               ),
               textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis, // Added
-              maxLines: 1, // Added
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
             SizedBox(height: 6.h),
             Text(
@@ -325,8 +401,8 @@ class CheckoutView extends GetView<CheckoutController> {
                 fontSize: 12.sp,
                 color: isSelected ? blueClr.withOpacity(0.8) : Colors.grey[600],
               ),
-              overflow: TextOverflow.ellipsis, // Added
-              maxLines: 2, // Added, allowing a bit more space for subtitle
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
             ),
           ],
         ),
@@ -334,7 +410,7 @@ class CheckoutView extends GetView<CheckoutController> {
     );
   }
 
-  // Kartu pilihan metode pembayaran (Tunai / Online)
+  // Kartu pilihan metode pembayaran
   Widget _buildPaymentMethodCard(
     BuildContext context,
     String title,
@@ -344,6 +420,7 @@ class CheckoutView extends GetView<CheckoutController> {
     ValueChanged<String?> onChanged,
     IconData icon,
   ) {
+    // ... (kode widget ini tetap sama)
     final bool isSelected = value == groupValue;
     return GestureDetector(
       onTap: () => onChanged(value),
@@ -389,8 +466,8 @@ class CheckoutView extends GetView<CheckoutController> {
                       fontWeight: FontWeight.w500,
                       color: isSelected ? blueClr.darken(0.1) : Colors.black87,
                     ),
-                    overflow: TextOverflow.ellipsis, // Added
-                    maxLines: 1, // Added
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                   SizedBox(height: 4.h),
                   Text(
@@ -402,13 +479,12 @@ class CheckoutView extends GetView<CheckoutController> {
                               ? blueClr.withOpacity(0.8)
                               : Colors.grey[600],
                     ),
-                    overflow: TextOverflow.ellipsis, // Added
-                    maxLines: 2, // Added
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                   ),
                 ],
               ),
             ),
-            // Opsional: tambahkan ikon centang jika terpilih
             if (isSelected)
               Icon(Icons.check_circle, color: blueClr, size: 24.sp),
           ],
@@ -417,13 +493,14 @@ class CheckoutView extends GetView<CheckoutController> {
     );
   }
 
-  // Kartu informasi untuk pesanan bawa pulang
+  // Kartu info Bawa Pulang
   Widget _buildTakeAwayInfoCard(BuildContext context) {
+    // ... (kode widget ini tetap sama)
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Info Pesanan Anda', // Lebih ringkas dan personal
+          'Info Pesanan Anda',
           style: GoogleFonts.poppins(
             fontSize: 18.sp,
             fontWeight: FontWeight.bold,
@@ -456,26 +533,26 @@ class CheckoutView extends GetView<CheckoutController> {
               ),
               SizedBox(height: 15.h),
               Text(
-                'Pesanan Akan Dibawa Pulang', // Lebih langsung
+                'Pesanan Akan Dibawa Pulang',
                 style: GoogleFonts.poppins(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
                 textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis, // Added
-                maxLines: 1, // Added
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
               SizedBox(height: 8.h),
               Text(
-                'Pesanan ini tidak memerlukan meja. Silakan siapkan diri untuk mengambil pesanan Anda di konter.', // Lebih jelas dan langsung
+                'Pesanan ini tidak memerlukan meja. Silakan ambil pesanan Anda di konter.',
                 style: GoogleFonts.poppins(
                   fontSize: 13.sp,
                   color: Colors.grey[600],
                 ),
                 textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis, // Added
-                maxLines: 3, // Added
+                overflow: TextOverflow.ellipsis,
+                maxLines: 3,
               ),
             ],
           ),
@@ -484,7 +561,6 @@ class CheckoutView extends GetView<CheckoutController> {
     );
   }
 
-  // Grid untuk pemilihan meja (jika Dine In)
   Widget _buildTableSelectionGrid(
     BuildContext context,
     CheckoutController controller,
@@ -493,7 +569,7 @@ class CheckoutView extends GetView<CheckoutController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Pilih Meja yang Anda Inginkan', // Lebih jelas
+          'Pilih Meja yang Anda Inginkan',
           style: GoogleFonts.poppins(
             fontSize: 18.sp,
             fontWeight: FontWeight.bold,
@@ -501,7 +577,6 @@ class CheckoutView extends GetView<CheckoutController> {
           ),
         ),
         SizedBox(height: 15.h),
-        // Keterangan Status Meja
         Padding(
           padding: EdgeInsets.only(bottom: 15.h),
           child: Row(
@@ -526,153 +601,153 @@ class CheckoutView extends GetView<CheckoutController> {
               ),
             ],
           ),
-          child: Obx(() {
-            if (kDebugMode) {
-              debugPrint(
-                'Obx Table Grid Rebuilding. Selected meja ID: ${controller.selectedMeja.value?.id}',
+          child: GetX<CheckoutController>(
+            builder: (controller) {
+              // Debug log untuk release mode
+              print(
+                'Table Grid Rebuilding. List length: ${controller.listMeja.length}',
               );
-            }
+              print('Selected meja ID: ${controller.selectedMeja.value?.id}');
 
-            if (controller.listMeja.isEmpty) {
-              return Padding(
-                padding: EdgeInsets.symmetric(vertical: 20.h),
-                child: Center(
-                  child: Text(
-                    'Maaf, tidak ada meja yang tersedia saat ini.', // Lebih ramah
-                    style: GoogleFonts.poppins(
-                      fontSize: 14.sp,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ),
-              );
-            }
-            return GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 10.w,
-                mainAxisSpacing: 15.h,
-                childAspectRatio: 0.8,
-              ),
-              itemCount: controller.listMeja.length,
-              itemBuilder: (context, index) {
-                final meja = controller.listMeja[index];
-                final bool isSelected =
-                    controller.selectedMeja.value?.id == meja.id;
-                final bool isAvailable = meja.status == 'tersedia';
-
-                if (kDebugMode) {
-                  debugPrint(
-                    '  Rendering Meja ${meja.nama} (ID: ${meja.id}), Status: ${meja.status}, IsSelected: $isSelected',
-                  );
-                }
-
-                Color backgroundColor;
-                Color textColor;
-                Color borderColor;
-
-                if (isSelected) {
-                  backgroundColor = blueClr;
-                  textColor = Colors.white;
-                  borderColor = blueClr.darken(0.1);
-                } else if (isAvailable) {
-                  backgroundColor = Colors.green.shade50;
-                  textColor = Colors.green.shade800;
-                  borderColor = Colors.green.shade300;
-                } else {
-                  backgroundColor = Colors.red.shade50;
-                  textColor = Colors.red.shade800;
-                  borderColor = Colors.red.shade300;
-                }
-
-                return GestureDetector(
-                  onTap:
-                      isAvailable
-                          ? () {
-                            if (kDebugMode) {
-                              debugPrint(
-                                'Tapped on Meja ${meja.nama} (ID: ${meja.id})',
-                              );
-                            }
-                            controller.selectedMeja.value =
-                                isSelected ? null : meja;
-                            controller.selectedMeja.refresh();
-                            if (kDebugMode) {
-                              debugPrint(
-                                'Meja selected after tap: ${controller.selectedMeja.value?.nama}',
-                              );
-                            }
-                          }
-                          : null,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeInOut,
-                    decoration: BoxDecoration(
-                      color: backgroundColor,
-                      borderRadius: BorderRadius.circular(12.r),
-                      border: Border.all(
-                        color: borderColor,
-                        width: isSelected ? 2.5.w : 1.w,
+              if (controller.listMeja.isEmpty) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20.h),
+                  child: Center(
+                    child: Text(
+                      'Maaf, tidak ada meja yang tersedia.',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14.sp,
+                        color: Colors.grey[600],
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color:
-                              isSelected
-                                  ? blueClr.withOpacity(0.3)
-                                  : Colors.grey.withOpacity(0.1),
-                          spreadRadius: isSelected ? 2 : 1,
-                          blurRadius: isSelected ? 8 : 4,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          HugeIcons.strokeRoundedTable02,
-                          size: 35.sp,
-                          color: textColor,
-                        ),
-                        SizedBox(height: 8.h),
-                        Text(
-                          'Meja ${meja.nama}', // Lebih jelas
-                          style: GoogleFonts.poppins(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.bold,
-                            color: textColor,
-                          ),
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis, // Added
-                          maxLines: 1, // Added
-                        ),
-                        SizedBox(height: 3.h),
-                        Text(
-                          'Max ${meja.kapasitas} Orang', // Lebih jelas
-                          style: GoogleFonts.poppins(
-                            fontSize: 11.sp,
-                            color: textColor.withOpacity(0.8),
-                          ),
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis, // Added
-                          maxLines: 1, // Added
-                        ),
-                      ],
                     ),
                   ),
                 );
-              },
-            );
-          }),
+              }
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 10.w,
+                  mainAxisSpacing: 15.h,
+                  childAspectRatio: 0.8,
+                ),
+                itemCount: controller.listMeja.length,
+                itemBuilder: (context, index) {
+                  final meja = controller.listMeja[index];
+                  final bool isSelected =
+                      controller.selectedMeja.value?.id == meja.id;
+                  final bool isAvailable = meja.status == 'tersedia';
+
+                  // Debug log untuk setiap item
+                  print(
+                    'Rendering Meja ${meja.nama} (ID: ${meja.id}), Status: ${meja.status}, IsSelected: $isSelected',
+                  );
+
+                  Color backgroundColor;
+                  Color textColor;
+                  Color borderColor;
+
+                  if (isSelected) {
+                    backgroundColor = blueClr;
+                    textColor = Colors.white;
+                    borderColor = blueClr.darken(0.1);
+                  } else if (isAvailable) {
+                    backgroundColor = Colors.green.shade50;
+                    textColor = Colors.green.shade800;
+                    borderColor = Colors.green.shade300;
+                  } else {
+                    backgroundColor = Colors.red.shade50;
+                    textColor = Colors.red.shade800;
+                    borderColor = Colors.red.shade300;
+                  }
+
+                  return GestureDetector(
+                    onTap:
+                        isAvailable
+                            ? () {
+                              print(
+                                'Tapped on Meja ${meja.nama} (ID: ${meja.id})',
+                              );
+
+                              // Gunakan method selectMeja yang sudah diperbaiki
+                              controller.selectMeja(meja);
+
+                              print(
+                                'Meja selected after tap: ${controller.selectedMeja.value?.nama}',
+                              );
+                            }
+                            : null,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      decoration: BoxDecoration(
+                        color: backgroundColor,
+                        borderRadius: BorderRadius.circular(12.r),
+                        border: Border.all(
+                          color: borderColor,
+                          width: isSelected ? 2.5.w : 1.w,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                isSelected
+                                    ? blueClr.withOpacity(0.3)
+                                    : Colors.grey.withOpacity(0.1),
+                            spreadRadius: isSelected ? 2 : 1,
+                            blurRadius: isSelected ? 8 : 4,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            HugeIcons.strokeRoundedTable02,
+                            size: 35.sp,
+                            color: textColor,
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            'Meja ${meja.nama}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          SizedBox(height: 3.h),
+                          Text(
+                            'Max ${meja.kapasitas} Orang',
+                            style: GoogleFonts.poppins(
+                              fontSize: 11.sp,
+                              color: textColor.withOpacity(0.8),
+                            ),
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ],
     );
   }
 
-  // Widget untuk item keterangan (legenda)
+  // Item legenda
   Widget _buildLegendItem(Color color, String text) {
+    // ... (kode widget ini tetap sama)
     return Row(
       children: [
         Container(
@@ -688,18 +763,19 @@ class CheckoutView extends GetView<CheckoutController> {
         Text(
           text,
           style: GoogleFonts.poppins(fontSize: 13.sp, color: Colors.grey[700]),
-          overflow: TextOverflow.ellipsis, // Added
-          maxLines: 1, // Added
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
       ],
     );
   }
 
-  // Tombol "Konfirmasi & Bayar"
+  // Tombol checkout
   Widget _buildCheckoutButton(
     BuildContext context,
     CartController cartController,
   ) {
+    // ... (kode widget ini tetap sama, hanya dipindahkan ke bottomNavigationBar)
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       decoration: BoxDecoration(
@@ -721,13 +797,12 @@ class CheckoutView extends GetView<CheckoutController> {
         () => ElevatedButton(
           onPressed:
               controller.isLoading.value
-                  ? null // Nonaktifkan tombol saat loading
+                  ? null
                   : () {
-                    // Validasi pilihan jenis pesanan
                     if (controller.selectedOrderType.value.isEmpty) {
                       Get.snackbar(
-                        'Penting!', // Judul lebih menarik
-                        'Mohon pilih apakah Anda akan makan di sini atau dibawa pulang.', // Instruksi lebih jelas
+                        'Penting!',
+                        'Mohon pilih jenis pesanan (Makan di Sini / Bawa Pulang).',
                         snackPosition: SnackPosition.TOP,
                         backgroundColor: Colors.orange.shade700,
                         colorText: Colors.white,
@@ -736,12 +811,11 @@ class CheckoutView extends GetView<CheckoutController> {
                       );
                       return;
                     }
-                    // Validasi pilihan meja jika "Makan di Sini"
                     if (controller.selectedOrderType.value == 'dine_in' &&
                         controller.selectedMeja.value == null) {
                       Get.snackbar(
                         'Penting!',
-                        'Untuk makan di sini, Anda harus memilih meja terlebih dahulu.', // Instruksi lebih jelas
+                        'Anda harus memilih meja untuk makan di sini.',
                         snackPosition: SnackPosition.TOP,
                         backgroundColor: Colors.orange.shade700,
                         colorText: Colors.white,
@@ -750,8 +824,6 @@ class CheckoutView extends GetView<CheckoutController> {
                       );
                       return;
                     }
-
-                    // Lanjutkan ke proses pembayaran
                     controller.processPayment(
                       cartController.cartItems.toList(),
                       cartController.total.value,
@@ -779,7 +851,7 @@ class CheckoutView extends GetView<CheckoutController> {
                     ),
                   )
                   : Text(
-                    'Selesaikan Pembayaran', // Lebih aktif dan persuasif
+                    'Selesaikan Pembayaran',
                     style: GoogleFonts.poppins(
                       fontSize: 17.sp,
                       fontWeight: FontWeight.w600,

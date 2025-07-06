@@ -28,7 +28,6 @@ class RatingView extends GetView<RatingController> {
       );
     }
 
-    // Validasi arguments
     if (productId == 0 || transactionId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Get.snackbar(
@@ -42,7 +41,6 @@ class RatingView extends GetView<RatingController> {
       return _buildErrorScaffold();
     }
 
-    // Initialize data check
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await controller.checkExistingRating(
         productId: productId,
@@ -52,54 +50,136 @@ class RatingView extends GetView<RatingController> {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: _buildAppBar(),
-      body: Obx(() => _buildBody(productId, transactionId)),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return PreferredSize(
-      preferredSize: Size.fromHeight(kToolbarHeight.h + 10.h),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [blueClr, dua, tiga],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10.r,
-              offset: Offset(0, 5.h),
+      // Body sekarang menggunakan CustomScrollView untuk SliverAppBar
+      body: CustomScrollView(
+        slivers: [
+          // =============================================================
+          // == SLIVERAPPBAR BARU DITERAPKAN DI SINI ==
+          // =============================================================
+          SliverAppBar(
+            expandedHeight: 220.h,
+            floating: false,
+            pinned: true,
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            automaticallyImplyLeading:
+                false, // Menonaktifkan back button default
+            leading: Container(
+              margin: EdgeInsets.all(8.r),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(12.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10.r,
+                    offset: Offset(0, 4.h),
+                  ),
+                ],
+              ),
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios_new,
+                  color: const Color(0xFF1A202C),
+                  size: 20.sp,
+                ),
+                onPressed: () => Get.back(),
+              ),
             ),
-          ],
-        ),
-        child: SafeArea(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [blueClr, dua, tiga], // Gradient disesuaikan
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                  ),
+                ),
+                child: Stack(
                   children: [
-                    Text(
-                      'Berikan Rating',
-                      style: GoogleFonts.poppins(
-                        fontSize: 22.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                    Positioned(
+                      top: -40.h,
+                      left: -20.w,
+                      child: Container(
+                        width: 130.w,
+                        height: 130.h,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: -30.h,
+                      right: -50.w,
+                      child: Container(
+                        width: 160.w,
+                        height: 160.h,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.08),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(height: 30.h),
+                          Container(
+                            padding: EdgeInsets.all(20.r),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(30.r),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                                width: 1.5.w,
+                              ),
+                            ),
+                            child: Icon(
+                              Icons.star_half_rounded, // Ikon disesuaikan
+                              size: 40.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 15.h),
+                          Text(
+                            'Berikan Rating', // Teks disesuaikan
+                            style: GoogleFonts.poppins(
+                              fontSize: 28.sp,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            'Bagaimana pengalaman Anda?', // Sub-teks disesuaikan
+                            style: GoogleFonts.poppins(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.white.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+          // =============================================================
+          // == KONTEN BODY ASLI DIBUNGKUS DALAM SliverToBoxAdapter ==
+          // =============================================================
+          SliverToBoxAdapter(
+            child: Obx(() => _buildBody(productId, transactionId)),
+          ),
+        ],
       ),
     );
   }
+
+  // Metode _buildAppBar() sudah tidak diperlukan dan bisa dihapus.
 
   Widget _buildBody(int productId, int transactionId) {
     if (kDebugMode) {
@@ -130,6 +210,8 @@ class RatingView extends GetView<RatingController> {
   Widget _buildLoadingView() {
     return Center(
       child: Container(
+        // Menambahkan padding atas agar tidak terlalu dekat dengan AppBar
+        margin: EdgeInsets.only(top: 80.h),
         padding: EdgeInsets.all(32.w),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -175,7 +257,6 @@ class RatingView extends GetView<RatingController> {
   Widget _buildErrorScaffold() {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: _buildAppBar(),
       body: Center(
         child: Container(
           padding: EdgeInsets.all(32.w),
@@ -203,8 +284,7 @@ class RatingView extends GetView<RatingController> {
     final rating = controller.currentUserRating!;
 
     return SingleChildScrollView(
-      physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      scrollDirection: Axis.vertical,
+      physics: const NeverScrollableScrollPhysics(), // Scroll dinonaktifkan
       padding: EdgeInsets.symmetric(vertical: 0.h, horizontal: 15.w),
       child: Column(
         children: [
@@ -225,13 +305,12 @@ class RatingView extends GetView<RatingController> {
             ),
             child: Column(
               children: [
-                // Success Animation
                 Container(
                   width: 120.w,
-                  height: 120.w, // pastikan ini SAMA
+                  height: 120.w,
                   decoration: BoxDecoration(
                     color: Colors.green.shade50,
-                    shape: BoxShape.circle, // GUNAKAN INI
+                    shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Lottie.asset(
@@ -242,10 +321,7 @@ class RatingView extends GetView<RatingController> {
                     ),
                   ),
                 ),
-
                 SizedBox(height: 24.h),
-
-                // Success Message
                 Text(
                   'Rating Berhasil Diberikan!',
                   textAlign: TextAlign.center,
@@ -266,8 +342,6 @@ class RatingView extends GetView<RatingController> {
                   ),
                 ),
                 SizedBox(height: 32.h),
-
-                // Rating Display
                 Container(
                   padding: EdgeInsets.all(20.w),
                   decoration: BoxDecoration(
@@ -276,7 +350,6 @@ class RatingView extends GetView<RatingController> {
                   ),
                   child: Column(
                     children: [
-                      // Stars
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: List.generate(5, (index) {
@@ -293,8 +366,6 @@ class RatingView extends GetView<RatingController> {
                         }),
                       ),
                       SizedBox(height: 8.h),
-
-                      // Rating Text
                       Text(
                         _getRatingText(rating.rating),
                         style: GoogleFonts.poppins(
@@ -304,8 +375,6 @@ class RatingView extends GetView<RatingController> {
                         ),
                       ),
                       SizedBox(height: 16.h),
-
-                      // Comment if exists
                       if (rating.comment != null && rating.comment!.isNotEmpty)
                         Container(
                           width: double.infinity,
@@ -342,8 +411,6 @@ class RatingView extends GetView<RatingController> {
                   ),
                 ),
                 SizedBox(height: 32.h),
-
-                // Back Button
                 Container(
                   width: double.infinity,
                   height: 40.h,
@@ -386,6 +453,7 @@ class RatingView extends GetView<RatingController> {
               ],
             ),
           ),
+          SizedBox(height: 20.h), // Padding bawah
         ],
       ),
     );
@@ -393,14 +461,12 @@ class RatingView extends GetView<RatingController> {
 
   Widget _buildRatingForm(int productId, int transactionId) {
     return SingleChildScrollView(
-      physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      physics: const NeverScrollableScrollPhysics(), // Scroll dinonaktifkan
       padding: EdgeInsets.all(15.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 20.h),
-
-          // Rating Animation Card
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(15.w),
@@ -423,21 +489,17 @@ class RatingView extends GetView<RatingController> {
                   child: ClipOval(
                     child: Container(
                       width: 200.w,
-                      height:
-                          200.w, // Pastikan width dan height sama untuk lingkaran
-                      color: Colors.yellow.shade100, // Background opsional
+                      height: 200.w,
+                      color: Colors.yellow.shade100,
                       child: Lottie.asset(
                         'assets/animation/star.json',
                         repeat: true,
                         animate: true,
-                        fit:
-                            BoxFit
-                                .contain, // Hindari cover agar tidak keluar dari lingkaran
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
                 ),
-
                 SizedBox(height: 24.h),
                 Text(
                   'Bagaimana pengalaman Anda?',
@@ -460,8 +522,6 @@ class RatingView extends GetView<RatingController> {
             ),
           ),
           SizedBox(height: 32.h),
-
-          // Rating Stars Card
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(15.w),
@@ -487,8 +547,6 @@ class RatingView extends GetView<RatingController> {
                   ),
                 ),
                 SizedBox(height: 20.h),
-
-                // Stars
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (index) {
@@ -524,8 +582,6 @@ class RatingView extends GetView<RatingController> {
                   }),
                 ),
                 SizedBox(height: 16.h),
-
-                // Rating Text
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   child: Text(
@@ -542,8 +598,6 @@ class RatingView extends GetView<RatingController> {
             ),
           ),
           SizedBox(height: 24.h),
-
-          // Comment Card
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(15.w),
@@ -637,8 +691,6 @@ class RatingView extends GetView<RatingController> {
             ),
           ),
           SizedBox(height: 32.h),
-
-          // Submit Button
           Container(
             width: double.infinity,
             height: 45.h,

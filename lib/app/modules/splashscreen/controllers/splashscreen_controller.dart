@@ -18,7 +18,7 @@ class SplashscreenController extends GetxController {
   void checkLogin() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 5), () {
       if (token != null) {
         Get.offAllNamed(Routes.BOTTOMNAVIGATION);
       } else {
